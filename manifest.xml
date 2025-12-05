@@ -9,9 +9,10 @@
   <IconUrl DefaultValue="https://shvintech.github.io/excel_plugin/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://shvintech.github.io/excel_plugin/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://www.contoso.com/help"/>
-  <AppDomains>
+<AppDomains>
     <AppDomain>https://www.contoso.com</AppDomain>
-  </AppDomains>
+    <AppDomain>https://shvintech.github.io</AppDomain>
+</AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
   </Hosts>
