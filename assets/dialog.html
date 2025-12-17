@@ -9,19 +9,76 @@
     <title>Loader Dialog</title>
 </head>
 
-<body class="min-h-screen bg-gray-100 flex items-center justify-center bg-white">
-    <div class="p-6 rounded-lg flex flex-row justify-center gap-2">
-        <div class="w-6 h-6 border-4 border-t-blue-600 border-gray-200 rounded-full animate-spin mb-4"></div>
-        <p class="text-gray-700 font-medium">Processing your request...</p>
+<body class="bg-white min-h-screen flex flex-col items-center justify-center gap-6">
+    <!-- Loader -->
+    <div id="loader" class="flex gap-2 items-center">
+        <div class="w-6 h-6 border-4 border-t-blue-600 border-gray-200 rounded-full animate-spin"></div>
+        <p class="font-semibold">Processing your request...</p>
+    </div>
+
+    <!-- Toast -->
+    <div class="flex flex-col items-center">
+        <div id="toast" class="hidden max-w-md p-4 rounded-md shadow-md"></div>
+
+        <button id="closeBtn" class="hidden w-full mt-6 px-4 py-2 bg-green-600 text-white rounded"
+            onclick="closeDialog()">
+            Close
+        </button>
     </div>
 
     <script>
-        const loader = document.getElementById("loader");
+        Office.onReady(() => {
+            // Listen to messages from parent
+            Office.context.ui.addHandlerAsync(
+                Office.EventType.DialogParentMessageReceived,
+                (arg) => {
+                    const { type, message } = JSON.parse(arg.message);
 
-        window.addEventListener("DOMContentLoaded", () => {
-            // Show the loader
-            loader.classList.remove("hidden");
+                    // Hide loader safely
+                    document.getElementById("loader")?.classList.add("hidden");
+
+                    // Show toast
+                    const toast = document.getElementById("toast");
+                    toast?.classList.remove("hidden");
+
+                    const closeBtn = document.getElementById("closeBtn");
+                    closeBtn?.classList.remove("hidden");
+
+                    // Normalize type (success, error, info, warning)
+                    const toastType = (type || "").toLowerCase();
+
+                    toast.className = ""; // reset all classes
+                    toast.classList.add("max-w-md", "p-4", "rounded-md", "shadow-md");
+
+                    switch (toastType) {
+                        case "success":
+                            toast.classList.add("bg-green-100", "border-l-4", "border-green-500", "text-green-700");
+                            break;
+                        case "error":
+                            toast.classList.add("bg-red-100", "border-l-4", "border-red-500", "text-red-700");
+                            break;
+                        case "info":
+                            toast.classList.add("bg-blue-100", "border-l-4", "border-blue-500", "text-blue-700");
+                            break;
+                        default:
+                            toast.classList.add("bg-yellow-100", "border-l-4", "border-yellow-500", "text-yellow-700");
+                    }
+
+                    // Update toast content
+                    toast.innerHTML = `
+                        <strong class="block capitalize">${toastType}</strong>
+                        <p>${message}</p>
+                    `;
+                }
+            );
         });
+
+        // Send close message to parent 
+        const closeDialog = () => {
+            Office.context.ui.messageParent(
+                JSON.stringify({ type: "CLOSE_DIALOG" })
+            );
+        };
     </script>
 </body>
 
